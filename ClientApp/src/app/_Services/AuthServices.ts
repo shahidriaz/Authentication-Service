@@ -19,8 +19,7 @@ import { ToastrService } from 'ngx-toastr';
   providedIn: "root"
 })
 //AuthService
-export class AuthService
-{
+export class AuthService {
   //BaseURL
   //TODO: Shahid, Need to read it from config
   private baseUrl = "http://localhost:65122/";
@@ -34,8 +33,7 @@ export class AuthService
   private currentUserSource = new ReplaySubject<UserWithKey>(1);
   logedInUser$ = this.currentUserSource.asObservable();
   // Since this service needs to call the APIs, so need to inject HttpClient in constructir
-  constructor(private httpClient: HttpClient, private router: Router, private toastr: ToastrService)
-  {
+  constructor(private httpClient: HttpClient, private router: Router, private toastr: ToastrService) {
   }
   //Method to Login
   Login(signIN: SignIN) {
@@ -68,16 +66,14 @@ export class AuthService
   //Signup method will be used for signing up the user
   SignUp(user: User) {
     this.httpClient.post<User>(this.baseUrl + 'User/Create', JSON.stringify(user), this.HttpOptions).subscribe(
-      result =>
-      {
+      result => {
         //Show the message of Success
         this.toastr.success("You have successfully Signed up with us.");
         //route to login page
         this.router.navigate(['login']);
         //console.log(JSON.stringify(result));
       },
-      error =>
-      {
+      error => {
         this.toastr.error(error.error);
       });
   }
@@ -99,9 +95,20 @@ export class AuthService
     var user: string = "";
     if (this.currentUserSource && this.getCurrentUser() != null) {
       this.getCurrentUser()?.subscribe(res => {
-        user = res.token;
+        if (res != null)
+          user = res.token;
       });
     }
     return user;
-  } 
+  }
+  GetSelectedRole(): string {
+    let selectedRole: any = "";
+    this.logedInUser$.subscribe(res => {
+      if (res != null)
+        selectedRole = res;
+    });
+    if (selectedRole != null)
+      return selectedRole.roles;
+    return '';
+  }
 }
